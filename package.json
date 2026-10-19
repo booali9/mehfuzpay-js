@@ -1,0 +1,44 @@
+{
+  "name": "@mehfuzpay/js",
+  "version": "0.1.0",
+  "description": "MehfuzPay secure card fields for your own checkout page. Card details never touch your page or your server.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "mehfuzpay",
+    "payments",
+    "pakistan",
+    "checkout",
+    "card",
+    "pci"
+  ],
+  "homepage": "https://mehfuzpay.com/docs?topic=custom-checkout",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/booali9/mehfuzpay-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/booali9/mehfuzpay-js/issues",
+    "email": "business@mehfuzpay.com"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

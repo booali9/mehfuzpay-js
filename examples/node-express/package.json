@@ -1,0 +1,15 @@
+{
+  "name": "mehfuzpay-custom-checkout-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node init && node --env-file-if-exists=.env server.js"
+  },
+  "dependencies": {
+    "@mehfuzpay/js": "^0.1.0",
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22.9"
+  }
+}

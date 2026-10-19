@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout — MehfuzPay custom checkout example</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f5f7; margin: 0; padding: 40px 16px; color: #111827; }
+    form { max-width: 460px; margin: auto; background: #fff; padding: 28px; border-radius: 16px; box-shadow: 0 8px 30px #0000000f; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .total { color: #6b7280; margin: 0 0 20px; }
+    label { display: block; font-size: 13px; margin: 14px 0 6px; color: #374151; }
+    input { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid #d1d5db; border-radius: 10px; font: inherit; }
+    #card { border: 1px solid #d1d5db; border-radius: 10px; padding: 8px; }
+    button { margin-top: 20px; width: 100%; padding: 13px; border: 0; border-radius: 10px; background: #e11d2b; color: #fff; font-size: 16px; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    #message { min-height: 20px; color: #b91c1c; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <form id="checkout">
+    <h1>Your order</h1>
+    <p class="total">Total PKR 2,500.00 (sandbox)</p>
+    <label>Card</label>
+    <div id="card"></div>
+    <label for="line1">Billing address</label>
+    <input id="line1" required maxlength="120" autocomplete="billing street-address">
+    <label for="city">City</label>
+    <input id="city" required maxlength="80" autocomplete="billing address-level2" value="Karachi">
+    <button id="pay" disabled>Pay PKR 2,500.00</button>
+    <p id="message" role="alert"></p>
+  </form>
+  <script type="module">
+    import { loadMehfuzPay } from '/vendor/mehfuzpay.js';
+    const pay = document.getElementById('pay');
+    const message = document.getElementById('message');
+
+    const created = await fetch('/api/payment', { method: 'POST' }).then((r) => r.json());
+    if (created.error) message.textContent = created.error;
+
+    const card = loadMehfuzPay().createCardElement({
+      clientSecret: created.clientSecret,
+      appearance: { fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#111827' }
+    });
+    card.mount('#card');
+    card.on('ready', () => (pay.disabled = false));
+    card.on('error', (e) => (message.textContent = e.message));
+
+    document.getElementById('checkout').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      pay.disabled = true;
+      message.textContent = '';
+      const result = await card.confirmPayment({
+        billing: { line1: document.getElementById('line1').value, city: document.getElementById('city').value }
+      });
+      if (result.error) {
+        message.textContent = result.error.message;
+        pay.disabled = false;
+        return;
+      }
+      // The browser result is only a hint; ask our server for the verified status.
+      const verified = await fetch('/api/payment/' + result.paymentId).then((r) => r.json());
+      message.style.color = verified.status === 'succeeded' ? '#047857' : '#374151';
+      message.textContent =
+        verified.status === 'succeeded'
+          ? 'Payment confirmed. Thank you!'
+          : verified.status === 'failed'
+            ? 'The payment was declined.'
+            : 'Payment submitted. We will confirm your order shortly.';
+    });
+  </script>
+</body>
+</html>
